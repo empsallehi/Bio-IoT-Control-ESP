@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biotech Lab — Gate Control Station</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080f1e;color:#e2e8f0;font-family:Arial,sans-serif;padding:24px;min-height:100vh}
+.db{max-width:1200px;margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:36px;height:36px;border-radius:8px;background:#1a2744;border:1px solid #2a3f6e;display:flex;align-items:center;justify-content:center;color:#4d8af0;font-size:18px}
+.brand h1{font-size:16px;font-weight:500;color:#e2e8f0;line-height:1.2}
+.brand p{font-size:11px;color:#4b5a7a;margin-top:1px}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;color:#4b5a7a;background:#0f1a2e;border:1px solid #1e2d4a;border-radius:20px;padding:4px 10px}
+.dot{width:6px;height:6px;border-radius:50%;background:#10b981;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.range-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.range-row span{font-size:11px;color:#4b5a7a;text-transform:uppercase;letter-spacing:.06em}
+.rbts{display:flex;gap:3px;background:#0f1a2e;border:1px solid #1e2d4a;border-radius:8px;padding:3px}
+.rbts button{font-size:11px;padding:4px 12px;border-radius:5px;border:none;background:transparent;color:#4b5a7a;cursor:pointer;transition:all .15s}
+.rbts button.active{background:#1a2f5e;color:#6ea8fe}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.mc{background:#0f1a2e;border-radius:10px;padding:16px;border:1px solid #1e2d4a;position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:10px 10px 0 0}
+.mc.total::before{background:#2a3f6e}
+.mc.green::before{background:#10b981}
+.mc.red::before{background:#ef4444}
+.mc.amber::before{background:#f59e0b}
+.mc .lbl{font-size:10px;color:#4b5a7a;margin-bottom:10px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:.05em}
+.mc .val{font-size:26px;font-weight:500;color:#e2e8f0;line-height:1}
+.mc.green .val{color:#10b981}
+.mc.red .val{color:#ef4444}
+.mc.amber .val{color:#f59e0b}
+.mc .sub{font-size:10px;color:#4b5a7a;margin-top:6px}
+.charts-row{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;margin-bottom:12px}
+.card{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.card:last-child{margin-bottom:0}
+.card-hdr{font-size:10px;font-weight:500;color:#4b5a7a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.card-hdr-left{display:flex;align-items:center;gap:6px}
+.legend{display:flex;gap:14px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:5px;font-size:10px;color:#4b5a7a}
+.lsq{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.tbl th{text-align:left;padding:9px 10px;color:#4b5a7a;border-bottom:1px solid #1e2d4a;font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:500}
+.tbl td{padding:9px 10px;color:#94a3b8;border-bottom:1px solid #111d33}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#0a1223}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:500}
+.ba{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.2)}
+.bd{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.2)}
+.bb{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.2)}
+.bu{background:rgba(75,90,122,.15);color:#64748b;border:1px solid rgba(75,90,122,.2)}
+.blk-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#080f1e;border-radius:8px;margin-bottom:6px;border:1px solid #1a2744}
+.blk-row:last-child{margin-bottom:0}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.av-red{background:#3f1212;color:#ef4444}
+.bname{font-size:12px;font-weight:500;color:#cbd5e1}
+.brole{font-size:10px;color:#4b5a7a;margin-top:1px}
+.ubtn{font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,.4);background:transparent;color:#10b981;cursor:pointer;transition:all .15s;white-space:nowrap}
+.ubtn:hover{background:rgba(16,185,129,.12)}
+</style>
+</head>
+<body>
+<div class="db">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon"><i class="ti ti-shield-lock"></i></div>
+      <div>
+        <h1>Biotech Lab Access Control</h1>
+        <p>Gate Control Station — Security Dashboard</p>
+      </div>
+    </div>
+    <div class="live"><div class="dot"></div>Live monitoring</div>
+  </div>
+
+  <div class="range-row">
+    <span><i class="ti ti-calendar" style="font-size:12px"></i> Time range</span>
+    <div class="rbts">
+      <button onclick="setRange('24h')" id="btn-24h">24h</button>
+      <button onclick="setRange('7d')" id="btn-7d" class="active">7 days</button>
+      <button onclick="setRange('30d')" id="btn-30d">30 days</button>
+      <button onclick="setRange('all')" id="btn-all">All time</button>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="mc total">
+      <div class="lbl"><i class="ti ti-scan"></i> Total scans</div>
+      <div class="val" id="m-total">—</div>
+      <div class="sub">selected period</div>
+    </div>
+    <div class="mc green">
+      <div class="lbl"><i class="ti ti-circle-check"></i> Allowed</div>
+      <div class="val" id="m-allowed">—</div>
+      <div class="sub" id="m-sr">—% success</div>
+    </div>
+    <div class="mc red">
+      <div class="lbl"><i class="ti ti-circle-x"></i> Denied</div>
+      <div class="val" id="m-denied">—</div>
+      <div class="sub" id="m-fr">—% failure</div>
+    </div>
+    <div class="mc amber">
+      <div class="lbl"><i class="ti ti-lock"></i> Locked cards</div>
+      <div class="val" id="m-blocked">—</div>
+      <div class="sub">require admin unblock</div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hdr">
+        <div class="card-hdr-left"><i class="ti ti-chart-line"></i> Daily traffic — last 7 days</div>
+        <div class="legend">
+          <span><span class="lsq" style="background:#10b981"></span>Allowed</span>
+          <span><span class="lsq" style="background:#ef4444"></span>Denied</span>
+        </div>
+      </div>
+      <div style="position:relative;height:180px"><canvas id="lineChart" role="img" aria-label="Line chart daily allowed vs denied"></canvas></div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hdr"><div class="card-hdr-left"><i class="ti ti-chart-donut"></i> Status breakdown</div></div>
+      <div style="position:relative;height:180px"><canvas id="donutChart" role="img" aria-label="Donut chart of access statuses"></canvas></div>
+    </div>
+  </div>
+
+  <div style="height:12px"></div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-hdr-left"><i class="ti ti-lock-off"></i> Locked badges</div>
+      <span style="font-size:10px;color:#4b5a7a" id="blk-count"></span>
+    </div>
+    <div id="blocked-list"><div style="font-size:12px;color:#4b5a7a;padding:4px 0;display:flex;align-items:center;gap:6px"><i class="ti ti-circle-check" style="color:#10b981"></i>All badges active</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><div class="card-hdr-left"><i class="ti ti-list-details"></i> Recent access logs</div></div>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:34px">#</th>
+          <th style="width:140px">Timestamp</th>
+          <th style="width:100px">Card UID</th>
+          <th>Employee</th>
+          <th>Gate</th>
+          <th style="width:120px">Status</th>
+        </tr></thead>
+        <tbody id="logs-body"><tr><td colspan="6" style="text-align:center;color:#4b5a7a;padding:20px">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const employees=[
+  {full_name:'Khatere Salehi',role:'Lab Manager',card_uid:'01020304',pin_code:'1234',failed_attempts:0,is_active:1},
+  {full_name:'Dr. Arvin Rad',role:'Senior Geneticist',card_uid:'11223344',pin_code:'5566',failed_attempts:0,is_active:1},
+  {full_name:'Maryam Amiri',role:'Cell Culture Tech',card_uid:'55667788',pin_code:'7788',failed_attempts:0,is_active:1},
+  {full_name:'Ali Davoudi',role:'Intern',card_uid:'AABBCCDD',pin_code:'0000',failed_attempts:3,is_active:0},
+  {full_name:'Dr. Sara Mahdavi',role:'Bioinformatician',card_uid:'C0FFEE99',pin_code:'1122',failed_attempts:0,is_active:1}
+];
+const gates=["Biotech Lab Main Gate","Genetics Cleanroom","Bioinformatics Unit"];
+const statuses=["ALLOWED","ALLOWED","ALLOWED","DENIED_PIN","UNKNOWN_CARD"];
+
+function genLogs(){
+  const logs=[];const start=new Date('2026-01-01');const end=new Date();
+  const days=Math.floor((end-start)/86400000);
+  const cards=['01020304','11223344','55667788','AABBCCDD','C0FFEE99','99887766'];
+  for(let d=0;d<=days;d++){
+    const curr=new Date(start.getTime()+d*86400000);
+    const isWE=curr.getDay()===0||curr.getDay()===6;
+    const n=isWE?Math.floor(Math.random()*8)+5:Math.floor(Math.random()*21)+25;
+    for(let s=0;s<n;s++){
+      const card=cards[Math.floor(Math.random()*cards.length)];
+      const hrs=[8,8,9,12,14,17,17,Math.floor(Math.random()*24)];
+      const h=hrs[Math.floor(Math.random()*hrs.length)];
+      const ts=new Date(curr);ts.setHours(h,Math.floor(Math.random()*60),Math.floor(Math.random()*60));
+      const emp=employees.find(e=>e.card_uid===card);
+      let name,status;
+      if(emp){name=emp.full_name;status=emp.is_active===0?"BLOCKED_CARD":statuses[Math.floor(Math.random()*statuses.length)];}
+      else{name="Unauthorized Unknown";status="UNKNOWN_CARD";}
+      logs.push({card_uid:card,employee_name:name,timestamp:ts,gate_name:gates[Math.floor(Math.random()*gates.length)],status});
+    }
+  }
+  return logs.sort((a,b)=>b.timestamp-a.timestamp);
+}
+const allLogs=genLogs();
+let lineC,donutC,range='7d';
+
+function filterLogs(r){
+  const now=new Date();if(r==='all')return allLogs;
+  const c=new Date(now);
+  if(r==='24h')c.setHours(now.getHours()-24);
+  else if(r==='7d')c.setDate(now.getDate()-7);
+  else if(r==='30d')c.setDate(now.getDate()-30);
+  return allLogs.filter(l=>l.timestamp>=c);
+}
+function ini(n){return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+function fts(dt){return dt.toISOString().slice(0,16).replace('T',' ');}
+function bdg(s){
+  if(s==='ALLOWED')return`<span class="badge ba"><i class="ti ti-check" style="font-size:9px"></i>${s}</span>`;
+  if(s==='DENIED_PIN'||s==='CARD_LOCKED')return`<span class="badge bd"><i class="ti ti-x" style="font-size:9px"></i>${s}</span>`;
+  if(s==='BLOCKED_CARD')return`<span class="badge bb"><i class="ti ti-lock" style="font-size:9px"></i>BLOCKED</span>`;
+  return`<span class="badge bu">${s}</span>`;
+}
+
+function render(r){
+  const logs=filterLogs(r);
+  const total=logs.length||1;
+  const allowed=logs.filter(l=>l.status==='ALLOWED').length;
+  const denied=total-allowed;
+  document.getElementById('m-total').textContent=total.toLocaleString();
+  document.getElementById('m-allowed').textContent=allowed.toLocaleString();
+  document.getElementById('m-denied').textContent=denied.toLocaleString();
+  const blkCount=employees.filter(e=>e.is_active===0).length;
+  document.getElementById('m-blocked').textContent=blkCount;
+  document.getElementById('m-sr').textContent=Math.round((allowed/total)*100)+'% success rate';
+  document.getElementById('m-fr').textContent=Math.round((denied/total)*100)+'% failure rate';
+
+  const days7=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    const a=allLogs.filter(l=>l.timestamp.toISOString().slice(0,10)===ds&&l.status==='ALLOWED').length;
+    const dn=allLogs.filter(l=>l.timestamp.toISOString().slice(0,10)===ds&&l.status!=='ALLOWED').length;
+    days7.push({label:ds.slice(5),a,dn});
+  }
+  if(lineC)lineC.destroy();
+  lineC=new Chart(document.getElementById('lineChart'),{
+    type:'line',
+    data:{labels:days7.map(d=>d.label),datasets:[
+      {label:'Allowed',data:days7.map(d=>d.a),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.06)',tension:0.4,pointRadius:3,pointBackgroundColor:'#10b981',fill:true,borderWidth:2},
+      {label:'Denied',data:days7.map(d=>d.dn),borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,0.04)',tension:0.4,pointRadius:3,pointBackgroundColor:'#ef4444',borderDash:[5,3],fill:true,borderWidth:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{y:{beginAtZero:true,grid:{color:'rgba(30,45,74,0.8)'},ticks:{color:'#4b5a7a',font:{size:10}}},x:{grid:{display:false},ticks:{color:'#4b5a7a',font:{size:10}}}}}
+  });
+
+  if(donutC)donutC.destroy();
+  const st={};logs.forEach(l=>{st[l.status]=(st[l.status]||0)+1;});
+  const lbls=Object.keys(st);const vals=Object.values(st);
+  const cols={'ALLOWED':'#10b981','DENIED_PIN':'#ef4444','UNKNOWN_CARD':'#334155','BLOCKED_CARD':'#f59e0b','CARD_LOCKED':'#ef4444'};
+  donutC=new Chart(document.getElementById('donutChart'),{
+    type:'doughnut',
+    data:{labels:lbls,datasets:[{data:vals,backgroundColor:lbls.map(l=>cols[l]||'#1e2d4a'),borderWidth:2,borderColor:'#0f1a2e'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'right',labels:{color:'#64748b',font:{size:10},boxWidth:9,padding:8}}}}
+  });
+
+  const bl=document.getElementById('blocked-list');
+  const blk=employees.filter(e=>e.is_active===0);
+  document.getElementById('blk-count').textContent=blk.length?blk.length+' locked':'';
+  bl.innerHTML=blk.length===0
+    ?'<div style="font-size:12px;color:#4b5a7a;padding:4px 0;display:flex;align-items:center;gap:6px"><i class="ti ti-circle-check" style="color:#10b981"></i>All badges active</div>'
+    :blk.map(e=>`
+      <div class="blk-row">
+        <div class="av av-red">${ini(e.full_name)}</div>
+        <div>
+          <div class="bname">${e.full_name}</div>
+          <div class="brole">${e.role} &nbsp;·&nbsp; <span style="font-family:monospace">${e.card_uid}</span></div>
+        </div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+          <span style="font-size:10px;color:#ef4444"><i class="ti ti-alert-triangle" style="font-size:11px"></i> 3 wrong PIN</span>
+          <button class="ubtn" onclick="unblock('${e.card_uid}')"><i class="ti ti-lock-open" style="font-size:11px"></i> Unblock</button>
+        </div>
+      </div>`).join('');
+
+  const recent=logs.slice(0,50);
+  const tbody=document.getElementById('logs-body');
+  tbody.innerHTML=recent.length===0
+    ?'<tr><td colspan="6" style="text-align:center;color:#4b5a7a;padding:20px">No records in this period</td></tr>'
+    :recent.map((l,i)=>`<tr>
+      <td style="color:#2a3f6e;font-size:11px">${i+1}</td>
+      <td style="font-family:monospace;font-size:11px;color:#4b5a7a">${fts(l.timestamp)}</td>
+      <td style="font-family:monospace;font-size:11px;color:#4d8af0">${l.card_uid}</td>
+      <td style="color:#cbd5e1;font-size:12px">${l.employee_name}</td>
+      <td style="font-size:11px;color:#4b5a7a">${l.gate_name}</td>
+      <td>${bdg(l.status)}</td>
+    </tr>`).join('');
+}
+
+function setRange(r){
+  range=r;
+  ['24h','7d','30d','all'].forEach(x=>document.getElementById('btn-'+x).classList.remove('active'));
+  document.getElementById('btn-'+r).classList.add('active');
+  render(r);
+}
+function unblock(uid){
+  const emp=employees.find(e=>e.card_uid===uid);
+  if(emp){emp.is_active=1;emp.failed_attempts=0;}
+  render(range);
+}
+render('7d');
+</script>
+</body>
+</html>
