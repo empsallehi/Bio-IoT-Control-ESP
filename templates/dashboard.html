@@ -3,299 +3,1046 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Biotech Lab — Gate Control Station</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<title>Biotech Lab — Access Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#080f1e;color:#e2e8f0;font-family:Arial,sans-serif;padding:24px;min-height:100vh}
-.db{max-width:1200px;margin:0 auto}
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
-.brand{display:flex;align-items:center;gap:10px}
-.brand-icon{width:36px;height:36px;border-radius:8px;background:#1a2744;border:1px solid #2a3f6e;display:flex;align-items:center;justify-content:center;color:#4d8af0;font-size:18px}
-.brand h1{font-size:16px;font-weight:500;color:#e2e8f0;line-height:1.2}
-.brand p{font-size:11px;color:#4b5a7a;margin-top:1px}
-.live{display:flex;align-items:center;gap:6px;font-size:11px;color:#4b5a7a;background:#0f1a2e;border:1px solid #1e2d4a;border-radius:20px;padding:4px 10px}
-.dot{width:6px;height:6px;border-radius:50%;background:#10b981;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.range-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.range-row span{font-size:11px;color:#4b5a7a;text-transform:uppercase;letter-spacing:.06em}
-.rbts{display:flex;gap:3px;background:#0f1a2e;border:1px solid #1e2d4a;border-radius:8px;padding:3px}
-.rbts button{font-size:11px;padding:4px 12px;border-radius:5px;border:none;background:transparent;color:#4b5a7a;cursor:pointer;transition:all .15s}
-.rbts button.active{background:#1a2f5e;color:#6ea8fe}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-.mc{background:#0f1a2e;border-radius:10px;padding:16px;border:1px solid #1e2d4a;position:relative;overflow:hidden}
-.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:10px 10px 0 0}
-.mc.total::before{background:#2a3f6e}
-.mc.green::before{background:#10b981}
-.mc.red::before{background:#ef4444}
-.mc.amber::before{background:#f59e0b}
-.mc .lbl{font-size:10px;color:#4b5a7a;margin-bottom:10px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:.05em}
-.mc .val{font-size:26px;font-weight:500;color:#e2e8f0;line-height:1}
-.mc.green .val{color:#10b981}
-.mc.red .val{color:#ef4444}
-.mc.amber .val{color:#f59e0b}
-.mc .sub{font-size:10px;color:#4b5a7a;margin-top:6px}
-.charts-row{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;margin-bottom:12px}
-.card{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:10px;padding:16px 18px;margin-bottom:12px}
-.card:last-child{margin-bottom:0}
-.card-hdr{font-size:10px;font-weight:500;color:#4b5a7a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
-.card-hdr-left{display:flex;align-items:center;gap:6px}
-.legend{display:flex;gap:14px;flex-wrap:wrap}
-.legend span{display:flex;align-items:center;gap:5px;font-size:10px;color:#4b5a7a}
-.lsq{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-.tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-.tbl th{text-align:left;padding:9px 10px;color:#4b5a7a;border-bottom:1px solid #1e2d4a;font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:500}
-.tbl td{padding:9px 10px;color:#94a3b8;border-bottom:1px solid #111d33}
-.tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:#0a1223}
-.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:500}
-.ba{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.2)}
-.bd{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.2)}
-.bb{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.2)}
-.bu{background:rgba(75,90,122,.15);color:#64748b;border:1px solid rgba(75,90,122,.2)}
-.blk-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#080f1e;border-radius:8px;margin-bottom:6px;border:1px solid #1a2744}
-.blk-row:last-child{margin-bottom:0}
-.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
-.av-red{background:#3f1212;color:#ef4444}
-.bname{font-size:12px;font-weight:500;color:#cbd5e1}
-.brole{font-size:10px;color:#4b5a7a;margin-top:1px}
-.ubtn{font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,.4);background:transparent;color:#10b981;cursor:pointer;transition:all .15s;white-space:nowrap}
-.ubtn:hover{background:rgba(16,185,129,.12)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#eef0ff;--sur:#ffffff;--sur2:#f6f7ff;--sur3:#f0f2ff;
+  --bdr:rgba(79,70,229,0.1);--bdr2:rgba(79,70,229,0.25);
+  --ind:#4f46e5;--ind-lt:#6366f1;--ind-bg:#eef2ff;--ind-hdr:#312e81;
+  --grn:#16a34a;--grn-lt:#22c55e;--grn-bg:#f0fdf4;--grn-b:#bbf7d0;
+  --red:#b91c1c;--red-lt:#ef4444;--red-bg:#fef2f2;--red-b:#fecaca;
+  --amb:#92400e;--amb-lt:#f59e0b;--amb-bg:#fffbeb;--amb-b:#fde68a;
+  --teal:#0e7490;--teal-bg:#ecfeff;--teal-b:#a5f3fc;
+  --t1:#1e1b4b;--t2:#3730a3;--t4:#64748b;--t5:#94a3b8;
+  --sora:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --r:10px;--r-lg:14px;--r-xl:18px;
+  --sh:0 4px 16px rgba(79,70,229,0.07),0 1px 3px rgba(0,0,0,0.04);
+  --sh-lg:0 12px 32px rgba(79,70,229,0.11),0 4px 8px rgba(0,0,0,0.05);
+}
+html,body{height:100%;overflow:hidden;}
+.mobile-stats{display:none;}
+body{background:var(--bg);font-family:var(--sora);color:var(--t1);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse-r{0%{box-shadow:0 0 0 0 rgba(74,222,128,0.7);}60%{box-shadow:0 0 0 8px rgba(74,222,128,0);}100%{box-shadow:0 0 0 0 rgba(74,222,128,0);}}
+.topbar{height:60px;flex-shrink:0;z-index:50;background:var(--ind-hdr);display:flex;align-items:center;padding:0 22px;box-shadow:0 1px 0 rgba(255,255,255,0.06),0 4px 20px rgba(49,46,129,0.3);position:relative;}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.6) 30%,rgba(165,180,252,0.8) 50%,rgba(99,102,241,0.6) 70%,transparent 100%);}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-pulse{width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;animation:pulse-r 2.2s infinite;}
+.brand-name{font-family:var(--sora);font-size:16px;font-weight:700;color:#fff;letter-spacing:3.5px;text-transform:uppercase;line-height:1.1;}
+.brand-sub{font-family:var(--mono);font-size:8px;color:rgba(165,180,252,0.5);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:16px;}
+.live-badge{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:rgba(199,210,254,0.5);letter-spacing:1.5px;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse-r 2.2s infinite;}
+.sync-el{font-family:var(--mono);font-size:9px;color:rgba(165,180,252,0.35);}
+.clock-el{font-family:var(--mono);font-size:13px;color:#a5b4fc;letter-spacing:2px;min-width:76px;text-align:right;}
+.workspace{flex:1;display:flex;overflow:hidden;height:calc(100vh - 60px);}
+html,body{display:flex;flex-direction:column;}
+.sidebar{width:192px;flex-shrink:0;background:var(--sur);border-right:1px solid var(--bdr);display:flex;flex-direction:column;padding:18px 14px 16px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--bdr) transparent;}
+.sb-sec-lbl{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--t5);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;font-family:var(--sora);font-size:12px;font-weight:500;color:var(--t4);cursor:pointer;margin-bottom:3px;transition:all 0.18s;border:1px solid transparent;}
+.nav-item.active{background:var(--ind-bg);color:var(--ind);border-color:rgba(79,70,229,0.15);}
+.nav-item:hover:not(.active){background:var(--sur2);}
+.nav-dot{width:5px;height:5px;border-radius:50%;border:1.5px solid currentColor;flex-shrink:0;}
+.nav-item.active .nav-dot{background:var(--ind);}
+.sb-div{height:1px;background:var(--bdr);margin:13px 0;}
+.sb-total-val{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--ind);line-height:1;}
+.sb-total-lbl{font-size:10px;color:var(--t5);margin-top:4px;margin-bottom:14px;}
+.sb-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px;}
+.sb-col-v{font-family:var(--mono);font-size:18px;font-weight:700;line-height:1;}
+.sb-col-p{font-family:var(--mono);font-size:9px;font-weight:600;margin-top:2px;}
+.sb-col-l{font-family:var(--sora);font-size:9px;color:var(--t5);margin-top:3px;}
+.sb-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr);}
+.sb-row:last-of-type{border-bottom:none;}
+.sb-row-l{font-size:10px;color:var(--t4);}
+.sb-row-v{font-family:var(--mono);font-size:13px;font-weight:700;}
+.sb-spacer{flex:1;}
+.sb-emrg{width:100%;padding:11px 14px;border-radius:10px;background:var(--red-bg);border:1px solid var(--red-b);color:var(--red);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.22s var(--ease);text-align:center;}
+.sb-emrg:hover{background:var(--red-b);box-shadow:0 4px 16px rgba(185,28,28,0.14);transform:translateY(-1px);}
+.main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:13px;scrollbar-width:thin;scrollbar-color:var(--bdr) transparent;}
+.panel{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r-lg);padding:16px;transition:border-color 0.2s,box-shadow 0.2s;animation:fadeUp 0.38s var(--ease) both;}
+.panel:hover{border-color:var(--bdr2);box-shadow:var(--sh);}
+.ph{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--t5);letter-spacing:2px;text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ph::after{content:'';flex:1;height:1px;background:var(--bdr);min-width:20px;}
+.ph-tag{font-family:var(--mono);font-size:7.5px;font-weight:700;letter-spacing:0.5px;padding:2px 7px;border-radius:4px;white-space:nowrap;}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;animation-delay:0.05s;}
+.trange-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.trange-lbl{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--t5);letter-spacing:2px;text-transform:uppercase;}
+.trange-grp{display:flex;gap:5px;}
+.trbtn{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;padding:5px 11px;border-radius:6px;background:var(--sur);border:1px solid var(--bdr);color:var(--t5);cursor:pointer;transition:all 0.18s;}
+.trbtn:hover{color:var(--ind);border-color:var(--bdr2);}
+.trbtn.on{background:var(--ind-bg);border-color:rgba(99,102,241,0.28);color:var(--ind);}
+.hm-tip{position:fixed;pointer-events:none;z-index:9999;background:var(--ind-hdr);color:#fff;border-radius:9px;padding:9px 12px;box-shadow:var(--sh-lg);font-family:var(--mono);opacity:0;transform:translateY(4px);transition:opacity 0.12s,transform 0.12s;white-space:nowrap;}
+.hm-tip.show{opacity:1;transform:translateY(0);}
+.hm-tip-day{font-size:10px;font-weight:700;color:#fff;letter-spacing:0.5px;margin-bottom:3px;}
+.hm-tip-cnt{font-size:13px;font-weight:700;color:#a5b4fc;}
+.hm-tip-cnt span{font-size:9px;font-weight:500;color:rgba(199,210,254,0.65);margin-left:4px;}
+.ch-180{height:180px;}
+.hm-grid{display:grid;gap:3px;}
+.hm-head{font-family:var(--mono);font-size:8px;color:var(--t5);text-align:center;}
+.hm-lbl{font-family:var(--mono);font-size:8px;color:var(--t5);display:flex;align-items:center;justify-content:flex-end;padding-right:4px;}
+.hm-cell{border-radius:3px;height:17px;cursor:pointer;transition:filter 0.15s,outline 0.15s;}
+.hm-cell:hover{filter:brightness(0.82);outline:1.5px solid rgba(79,70,229,0.35);outline-offset:1px;}
+.hm-legend{display:flex;align-items:center;gap:6px;margin-top:10px;}
+.hm-legend span{font-family:var(--mono);font-size:8px;color:var(--t5);}
+.hm-swatch{display:flex;gap:3px;}
+.hm-sw{width:15px;height:9px;border-radius:2px;}
+.intel-panel{margin-top:7px;}
+.intel-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.ic{border-radius:12px;padding:14px 14px 13px;border:1px solid;position:relative;overflow:hidden;cursor:pointer;transition:all 0.22s var(--ease);}
+.ic::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.ic:hover{transform:translateY(-2px);box-shadow:var(--sh);}
+.ic-r{background:var(--red-bg);border-color:var(--red-b);}
+.ic-r::before{background:linear-gradient(90deg,transparent,var(--red-lt),transparent);}
+.ic-a{background:var(--amb-bg);border-color:var(--amb-b);}
+.ic-a::before{background:linear-gradient(90deg,transparent,var(--amb-lt),transparent);}
+.ic-i{background:var(--ind-bg);border-color:rgba(99,102,241,0.2);}
+.ic-i::before{background:linear-gradient(90deg,transparent,var(--ind-lt),transparent);}
+.ic-tag{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;}
+.ic-title{font-family:var(--sora);font-size:12px;font-weight:600;color:var(--t1);margin-bottom:4px;line-height:1.4;}
+.ic-sub{font-family:var(--mono);font-size:9px;color:var(--t5);}
+.ic-chev{position:absolute;top:13px;right:13px;font-size:11px;color:var(--t5);transition:transform 0.25s var(--ease);}
+.ic-chev.open{transform:rotate(180deg);}
+.ic-body{font-family:var(--sora);font-size:11px;color:var(--t4);line-height:1.85;direction:rtl;max-height:0;overflow:hidden;transition:max-height 0.38s var(--ease),padding-top 0.3s,opacity 0.3s;opacity:0;}
+.ic-body.open{max-height:160px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.06);opacity:1;}
+.intel-grid.has-open .ic:not(.is-open){opacity:0.45;transform:scale(0.98);}
+.intel-grid.has-open .ic.is-open{transform:translateY(-2px);box-shadow:var(--sh-lg);}
+.table-wrap{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r-lg);overflow:hidden;animation:fadeUp 0.38s var(--ease) 0.05s both;}
+.toolbar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--bdr);flex-wrap:wrap;}
+.sw{position:relative;}
+.si{background:var(--sur2);border:1px solid var(--bdr);color:var(--t1);font-family:var(--mono);font-size:11px;padding:7px 12px 7px 32px;border-radius:8px;outline:none;width:200px;transition:all 0.2s var(--ease);}
+.si:focus{border-color:var(--bdr2);box-shadow:0 0 0 3px rgba(99,102,241,0.07);}
+.si::placeholder{color:var(--t5);}
+.si-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t5);font-size:13px;pointer-events:none;}
+.flt{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;border-radius:6px;background:var(--sur2);border:1px solid var(--bdr);color:var(--t5);cursor:pointer;transition:all 0.18s;}
+.flt:hover{color:var(--ind);border-color:var(--bdr2);}
+.flt.on{background:var(--ind-bg);border-color:rgba(99,102,241,0.28);color:var(--ind);}
+.rcount{font-family:var(--mono);font-size:9px;color:var(--t5);margin-left:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--sur2);}
+thead th{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t5);padding:10px 15px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;}
+tbody tr{border-bottom:1px solid rgba(79,70,229,0.05);transition:background 0.14s;}
+tbody tr:hover{background:var(--ind-bg);}
+tbody tr.r-ok{border-left:2px solid var(--grn-lt);}
+tbody tr.r-err{border-left:2px solid var(--red-lt);}
+tbody tr.r-wrn{border-left:2px solid var(--amb-lt);}
+tbody tr.r-unk{border-left:2px solid #e2e8f0;}
+tbody td{padding:10px 15px;font-size:12px;color:var(--t4);vertical-align:middle;}
+.td-n{font-weight:600;color:var(--t1);font-family:var(--sora);}
+.td-ts{font-family:var(--mono);font-size:10px;color:var(--t5);}
+.td-id{font-family:var(--mono);font-size:10px;color:var(--ind);background:var(--ind-bg);padding:2px 7px;border-radius:4px;border:1px solid rgba(99,102,241,0.16);}
+.pill{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:0.5px;padding:3px 8px;border-radius:4px;display:inline-block;text-transform:uppercase;white-space:nowrap;}
+.p-ok{background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn-b);}
+.p-wrn{background:var(--amb-bg);color:var(--amb);border:1px solid var(--amb-b);}
+.p-err{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b);}
+.p-unk{background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;}
+.p-inf{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-b);}
+.locked-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;padding:16px;}
+.lcard{background:var(--sur2);border:1px solid var(--red-b);border-radius:var(--r);padding:15px;transition:all 0.22s var(--ease);animation:fadeUp 0.35s var(--ease) both;}
+.lcard:hover{border-color:var(--red-lt);box-shadow:0 4px 16px rgba(185,28,28,0.08);transform:translateY(-3px);}
+.lc-name{font-weight:600;font-size:12px;color:var(--t1);margin-bottom:2px;}
+.lc-role{font-size:10px;color:var(--t4);margin-bottom:8px;}
+.lc-id{font-family:var(--mono);font-size:10px;color:var(--red);margin-bottom:10px;}
+.btn-unblock{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px 0;width:100%;border-radius:7px;background:var(--red-bg);border:1px solid var(--red-b);color:var(--red);cursor:pointer;transition:all 0.2s var(--ease);display:block;text-align:center;text-decoration:none;}
+.btn-unblock:hover{background:var(--red-b);box-shadow:0 3px 10px rgba(185,28,28,0.1);transform:translateY(-1px);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);opacity:0;background:var(--t1);color:#fff;font-family:var(--mono);font-size:11px;padding:10px 18px;border-radius:9px;box-shadow:var(--sh-lg);transition:all 0.32s var(--ease);z-index:9999;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(30,27,75,0.48);backdrop-filter:blur(10px);z-index:999;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.mbox{background:var(--sur);border:1px solid var(--red-b);border-radius:var(--r-xl);padding:28px 30px;width:380px;box-shadow:var(--sh-lg);animation:mIn 0.3s var(--ease);}
+@keyframes mIn{from{transform:scale(0.88) translateY(14px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+.m-tag{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px;}
+.m-title{font-family:var(--sora);font-size:17px;font-weight:700;color:var(--t1);margin-bottom:6px;}
+.m-desc{font-family:var(--sora);font-size:13px;color:var(--t4);line-height:1.7;margin-bottom:14px;}
+.m-desc strong{color:var(--t1);}
+.m-warn{font-family:var(--mono);font-size:10px;color:var(--red);background:var(--red-bg);border:1px solid var(--red-b);border-radius:8px;padding:9px 12px;margin-bottom:20px;}
+.m-acts{display:flex;gap:10px;}
+.mbtn{flex:1;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:12px;border-radius:9px;cursor:pointer;transition:all 0.2s var(--ease);border:1px solid;}
+.mbtn-abort{background:#f8fafc;border-color:#e2e8f0;color:#64748b;}.mbtn-abort:hover{background:#f1f5f9;}
+.mbtn-confirm{background:var(--red-bg);border-color:var(--red-b);color:var(--red);}.mbtn-confirm:hover{background:var(--red-b);box-shadow:0 4px 14px rgba(185,28,28,0.14);}
+.m-note{font-family:var(--mono);font-size:9px;color:var(--t5);text-align:center;margin-top:11px;}
+.umodal-overlay{display:none;position:fixed;inset:0;background:rgba(30,27,75,0.48);backdrop-filter:blur(10px);z-index:999;align-items:center;justify-content:center;}
+.umodal-overlay.show{display:flex;}
+.umodal-box{background:var(--sur);border:1px solid var(--grn-b);border-radius:var(--r-xl);padding:28px 30px;width:380px;box-shadow:var(--sh-lg);animation:mIn 0.3s var(--ease);}
+.um-tag{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--grn);text-transform:uppercase;margin-bottom:8px;}
+.um-title{font-family:var(--sora);font-size:17px;font-weight:700;color:var(--t1);margin-bottom:6px;}
+.um-desc{font-family:var(--sora);font-size:13px;color:var(--t4);line-height:1.7;margin-bottom:20px;}
+.um-desc strong{color:var(--t1);}
+.um-acts{display:flex;gap:10px;}
+.umbtn{flex:1;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:12px;border-radius:9px;cursor:pointer;transition:all 0.2s var(--ease);border:1px solid;}
+.umbtn-abort{background:#f8fafc;border-color:#e2e8f0;color:#64748b;}.umbtn-abort:hover{background:#f1f5f9;}
+.umbtn-confirm{background:var(--grn-bg);border-color:var(--grn-b);color:var(--grn);}.umbtn-confirm:hover{background:var(--grn-b);}
+.bmodal-overlay{display:none;position:fixed;inset:0;background:rgba(30,27,75,0.48);backdrop-filter:blur(10px);z-index:999;align-items:center;justify-content:center;}
+.bmodal-overlay.show{display:flex;}
+.bmodal-box{background:var(--sur);border:1px solid var(--amb-b);border-radius:var(--r-xl);padding:28px 30px;width:380px;box-shadow:var(--sh-lg);animation:mIn 0.3s var(--ease);}
+.bm-tag{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--amb);text-transform:uppercase;margin-bottom:8px;}
+.bm-title{font-family:var(--sora);font-size:17px;font-weight:700;color:var(--t1);margin-bottom:6px;}
+.bm-desc{font-family:var(--sora);font-size:13px;color:var(--t4);line-height:1.7;margin-bottom:20px;}
+.bm-desc strong{color:var(--t1);}
+.bm-acts{display:flex;gap:10px;}
+.bbtn{flex:1;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:12px;border-radius:9px;cursor:pointer;transition:all 0.2s var(--ease);border:1px solid;}
+.bbtn-abort{background:#f8fafc;border-color:#e2e8f0;color:#64748b;}.bbtn-abort:hover{background:#f1f5f9;}
+.bbtn-confirm{background:var(--amb-bg);border-color:var(--amb-b);color:var(--amb);}.bbtn-confirm:hover{background:var(--amb-b);}
+.amodal-overlay{display:none;position:fixed;inset:0;background:rgba(30,27,75,0.48);backdrop-filter:blur(10px);z-index:999;align-items:center;justify-content:center;}
+.amodal-overlay.show{display:flex;}
+.amodal-box{background:var(--sur);border:1px solid var(--bdr2);border-radius:var(--r-xl);padding:28px 30px;width:460px;box-shadow:var(--sh-lg);animation:mIn 0.3s var(--ease);}
+.am-tag{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--ind);text-transform:uppercase;margin-bottom:8px;}
+.am-title{font-family:var(--sora);font-size:17px;font-weight:700;color:var(--t1);margin-bottom:18px;}
+.am-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.am-field{display:flex;flex-direction:column;gap:5px;}
+.am-field.full{grid-column:1/-1;}
+.am-label{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t5);}
+.am-input{background:var(--sur2);border:1px solid var(--bdr);color:var(--t1);font-family:var(--mono);font-size:12px;padding:8px 11px;border-radius:8px;outline:none;transition:all 0.2s var(--ease);}
+.am-input:focus{border-color:var(--bdr2);box-shadow:0 0 0 3px rgba(99,102,241,0.07);}
+.am-input::placeholder{color:var(--t5);}
+.am-acts{display:flex;gap:10px;margin-top:4px;}
+.ambtn{flex:1;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:12px;border-radius:9px;cursor:pointer;transition:all 0.2s var(--ease);border:1px solid;}
+.ambtn-abort{background:#f8fafc;border-color:#e2e8f0;color:#64748b;}.ambtn-abort:hover{background:#f1f5f9;}
+.ambtn-confirm{background:var(--ind-bg);border-color:rgba(99,102,241,0.3);color:var(--ind);}.ambtn-confirm:hover{background:rgba(99,102,241,0.15);}
+.am-err{font-family:var(--mono);font-size:10px;color:var(--red);background:var(--red-bg);border:1px solid var(--red-b);border-radius:7px;padding:8px 11px;margin-bottom:12px;display:none;}
+.am-err.show{display:block;}
+.btn-block-row{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 9px;border-radius:5px;background:var(--amb-bg);border:1px solid var(--amb-b);color:var(--amb);cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+.btn-block-row:hover{background:var(--amb-b);}
+.btn-edit-row{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 9px;border-radius:5px;background:var(--ind-bg);border:1px solid rgba(99,102,241,0.28);color:var(--ind);cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+.btn-edit-row:hover{background:rgba(99,102,241,0.15);}
+.btn-add-emp{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 12px;border-radius:7px;background:var(--ind-bg);border:1px solid rgba(99,102,241,0.28);color:var(--ind);cursor:pointer;transition:all 0.18px;margin-left:auto;}
+.btn-add-emp:hover{background:rgba(99,102,241,0.15);}
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:4px;}
+/* ── Bottom Navigation (mobile only) ── */
+.bottom-nav{display:none;}
+
+@media(max-width:1100px){
+  .chart-row{grid-template-columns:1fr;}
+  .intel-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:760px){
+  html,body{overflow-y:auto;overflow-x:hidden;height:auto;}
+  .workspace{flex-direction:column;height:auto;}
+  .sidebar{display:none;}
+  .mobile-stats{display:flex;}
+  .main{padding:10px 12px 80px;gap:10px;height:auto;overflow:visible;}
+  .panel{padding:12px;}
+  .intel-grid{grid-template-columns:1fr;gap:10px;}
+  .brand-name{font-size:13px;letter-spacing:2px;}
+  .brand-sub{display:none;}
+  .sync-el{display:none;}
+  .topbar{padding:0 14px;}
+  .bottom-nav{
+    display:flex;position:fixed;bottom:0;left:0;right:0;
+    height:58px;background:var(--sur);border-top:1px solid var(--bdr);
+    z-index:100;box-shadow:0 -4px 20px rgba(49,46,129,0.1);
+  }
+  .bn-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:3px;font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:0.5px;
+    color:var(--t5);cursor:pointer;transition:color 0.18s;border:none;background:none;
+    text-transform:uppercase;
+  }
+  .bn-item.active{color:var(--ind);}
+  .bn-icon{width:20px;height:20px;display:block;}
+  .bn-emrg{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:3px;font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:0.5px;
+    color:var(--red);cursor:pointer;background:var(--red-bg);border:none;
+    border-left:1px solid var(--red-b);text-transform:uppercase;transition:background 0.18s;
+  }
+  .bn-emrg:hover{background:var(--red-b);}
+  /* mobile stats strip */
+  .mobile-stats{display:flex;gap:8px;padding:10px 12px 0;background:var(--bg);}
+  .ms-card{flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:8px 10px;text-align:center;}
+  .ms-val{font-family:var(--mono);font-size:16px;font-weight:700;line-height:1;}
+  .ms-lbl{font-family:var(--mono);font-size:7px;color:var(--t5);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:.01ms!important;}}
 </style>
 </head>
 <body>
-<div class="db">
 
-  <div class="topbar">
-    <div class="brand">
-      <div class="brand-icon"><i class="ti ti-shield-lock"></i></div>
-      <div>
-        <h1>Biotech Lab Access Control</h1>
-        <p>Gate Control Station — Security Dashboard</p>
-      </div>
+<div class="toast" id="toast"></div>
+<div id="hmTooltip" class="hm-tip"><div class="hm-tip-day" id="hmTipDay"></div><div class="hm-tip-cnt" id="hmTipCnt"></div></div>
+
+<!-- EMERGENCY MODAL -->
+<div class="modal-overlay" id="emergencyModal" role="dialog" aria-modal="true">
+  <div class="mbox">
+    <div class="m-tag">Emergency Override</div>
+    <div class="m-title">Unlock All Access Points</div>
+    <div class="m-desc">This action will <strong>immediately unlock all lab access points</strong> and bypass all authentication requirements.</div>
+    <div class="m-warn">This event will be permanently logged in the audit trail.</div>
+    <div class="m-acts">
+      <button class="mbtn mbtn-abort" onclick="closeModal()">Abort</button>
+      <button class="mbtn mbtn-confirm" onclick="doEmergency()">Confirm Override</button>
     </div>
-    <div class="live"><div class="dot"></div>Live monitoring</div>
+    <p class="m-note">Initiated by: Admin Session</p>
   </div>
-
-  <div class="range-row">
-    <span><i class="ti ti-calendar" style="font-size:12px"></i> Time range</span>
-    <div class="rbts">
-      <button onclick="setRange('24h')" id="btn-24h">24h</button>
-      <button onclick="setRange('7d')" id="btn-7d" class="active">7 days</button>
-      <button onclick="setRange('30d')" id="btn-30d">30 days</button>
-      <button onclick="setRange('all')" id="btn-all">All time</button>
-    </div>
-  </div>
-
-  <div class="metrics">
-    <div class="mc total">
-      <div class="lbl"><i class="ti ti-scan"></i> Total scans</div>
-      <div class="val" id="m-total">—</div>
-      <div class="sub">selected period</div>
-    </div>
-    <div class="mc green">
-      <div class="lbl"><i class="ti ti-circle-check"></i> Allowed</div>
-      <div class="val" id="m-allowed">—</div>
-      <div class="sub" id="m-sr">—% success</div>
-    </div>
-    <div class="mc red">
-      <div class="lbl"><i class="ti ti-circle-x"></i> Denied</div>
-      <div class="val" id="m-denied">—</div>
-      <div class="sub" id="m-fr">—% failure</div>
-    </div>
-    <div class="mc amber">
-      <div class="lbl"><i class="ti ti-lock"></i> Locked cards</div>
-      <div class="val" id="m-blocked">—</div>
-      <div class="sub">require admin unblock</div>
-    </div>
-  </div>
-
-  <div class="charts-row">
-    <div class="card" style="margin-bottom:0">
-      <div class="card-hdr">
-        <div class="card-hdr-left"><i class="ti ti-chart-line"></i> Daily traffic — last 7 days</div>
-        <div class="legend">
-          <span><span class="lsq" style="background:#10b981"></span>Allowed</span>
-          <span><span class="lsq" style="background:#ef4444"></span>Denied</span>
-        </div>
-      </div>
-      <div style="position:relative;height:180px"><canvas id="lineChart" role="img" aria-label="Line chart daily allowed vs denied"></canvas></div>
-    </div>
-    <div class="card" style="margin-bottom:0">
-      <div class="card-hdr"><div class="card-hdr-left"><i class="ti ti-chart-donut"></i> Status breakdown</div></div>
-      <div style="position:relative;height:180px"><canvas id="donutChart" role="img" aria-label="Donut chart of access statuses"></canvas></div>
-    </div>
-  </div>
-
-  <div style="height:12px"></div>
-
-  <div class="card">
-    <div class="card-hdr">
-      <div class="card-hdr-left"><i class="ti ti-lock-off"></i> Locked badges</div>
-      <span style="font-size:10px;color:#4b5a7a" id="blk-count"></span>
-    </div>
-    <div id="blocked-list"><div style="font-size:12px;color:#4b5a7a;padding:4px 0;display:flex;align-items:center;gap:6px"><i class="ti ti-circle-check" style="color:#10b981"></i>All badges active</div></div>
-  </div>
-
-  <div class="card">
-    <div class="card-hdr"><div class="card-hdr-left"><i class="ti ti-list-details"></i> Recent access logs</div></div>
-    <div style="overflow-x:auto">
-      <table class="tbl">
-        <thead><tr>
-          <th style="width:34px">#</th>
-          <th style="width:140px">Timestamp</th>
-          <th style="width:100px">Card UID</th>
-          <th>Employee</th>
-          <th>Gate</th>
-          <th style="width:120px">Status</th>
-        </tr></thead>
-        <tbody id="logs-body"><tr><td colspan="6" style="text-align:center;color:#4b5a7a;padding:20px">Loading...</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script>
-const employees=[
-  {full_name:'Khatere Salehi',role:'Lab Manager',card_uid:'01020304',pin_code:'1234',failed_attempts:0,is_active:1},
-  {full_name:'Dr. Arvin Rad',role:'Senior Geneticist',card_uid:'11223344',pin_code:'5566',failed_attempts:0,is_active:1},
-  {full_name:'Maryam Amiri',role:'Cell Culture Tech',card_uid:'55667788',pin_code:'7788',failed_attempts:0,is_active:1},
-  {full_name:'Ali Davoudi',role:'Intern',card_uid:'AABBCCDD',pin_code:'0000',failed_attempts:3,is_active:0},
-  {full_name:'Dr. Sara Mahdavi',role:'Bioinformatician',card_uid:'C0FFEE99',pin_code:'1122',failed_attempts:0,is_active:1}
-];
-const gates=["Biotech Lab Main Gate","Genetics Cleanroom","Bioinformatics Unit"];
-const statuses=["ALLOWED","ALLOWED","ALLOWED","DENIED_PIN","UNKNOWN_CARD"];
+<!-- UNBLOCK MODAL -->
+<div class="umodal-overlay" id="unblockModal" role="dialog" aria-modal="true">
+  <div class="umodal-box">
+    <div class="um-tag">Unblock Badge</div>
+    <div class="um-title">Restore Access</div>
+    <div class="um-desc">Unblock badge for <strong id="unblockName">—</strong> and restore full access to the lab?</div>
+    <div class="um-acts">
+      <button class="umbtn umbtn-abort" onclick="closeUnblockModal()">Cancel</button>
+      <button class="umbtn umbtn-confirm" id="unblockConfirmBtn">Unblock &amp; Reset</button>
+    </div>
+  </div>
+</div>
 
-function genLogs(){
-  const logs=[];const start=new Date('2026-01-01');const end=new Date();
-  const days=Math.floor((end-start)/86400000);
-  const cards=['01020304','11223344','55667788','AABBCCDD','C0FFEE99','99887766'];
-  for(let d=0;d<=days;d++){
-    const curr=new Date(start.getTime()+d*86400000);
-    const isWE=curr.getDay()===0||curr.getDay()===6;
-    const n=isWE?Math.floor(Math.random()*8)+5:Math.floor(Math.random()*21)+25;
-    for(let s=0;s<n;s++){
-      const card=cards[Math.floor(Math.random()*cards.length)];
-      const hrs=[8,8,9,12,14,17,17,Math.floor(Math.random()*24)];
-      const h=hrs[Math.floor(Math.random()*hrs.length)];
-      const ts=new Date(curr);ts.setHours(h,Math.floor(Math.random()*60),Math.floor(Math.random()*60));
-      const emp=employees.find(e=>e.card_uid===card);
-      let name,status;
-      if(emp){name=emp.full_name;status=emp.is_active===0?"BLOCKED_CARD":statuses[Math.floor(Math.random()*statuses.length)];}
-      else{name="Unauthorized Unknown";status="UNKNOWN_CARD";}
-      logs.push({card_uid:card,employee_name:name,timestamp:ts,gate_name:gates[Math.floor(Math.random()*gates.length)],status});
+<!-- BLOCK MODAL -->
+<div class="bmodal-overlay" id="blockModal" role="dialog" aria-modal="true">
+  <div class="bmodal-box">
+    <div class="bm-tag">Block Badge</div>
+    <div class="bm-title">Disable Access</div>
+    <div class="bm-desc">Block badge for <strong id="blockName">—</strong>? This will immediately prevent lab entry until manually unblocked.</div>
+    <div class="bm-acts">
+      <button class="bbtn bbtn-abort" onclick="closeBlockModal()">Cancel</button>
+      <button class="bbtn bbtn-confirm" id="blockConfirmBtn">Block Badge</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT EMPLOYEE MODAL -->
+<div class="amodal-overlay" id="editEmpModal" role="dialog" aria-modal="true">
+  <div class="amodal-box">
+    <div class="am-tag">Edit Employee</div>
+    <div class="am-title">Update Record</div>
+    <div class="am-err" id="editEmpErr"></div>
+    <div class="am-grid">
+      <input type="hidden" id="editEmpId">
+      <div class="am-field">
+        <span class="am-label">Full Name *</span>
+        <input class="am-input" type="text" id="editFullName" placeholder="e.g. Dr. Sara Mahdavi">
+      </div>
+      <div class="am-field">
+        <span class="am-label">Role</span>
+        <input class="am-input" type="text" id="editRole" placeholder="e.g. Lab Technician">
+      </div>
+      <div class="am-field">
+        <span class="am-label">National ID *</span>
+        <input class="am-input" type="text" id="editNationalId" placeholder="10-digit ID" maxlength="10">
+      </div>
+      <div class="am-field">
+        <span class="am-label">Personnel Code</span>
+        <input class="am-input" type="text" id="editPersonnelCode" placeholder="e.g. 980201">
+      </div>
+      <div class="am-field">
+        <span class="am-label">Card UID *</span>
+        <input class="am-input" type="text" id="editCardUID" placeholder="Unique number">
+      </div>
+      <div class="am-field">
+        <span class="am-label">PIN Code</span>
+        <input class="am-input" type="text" id="editPinCode" placeholder="Leave blank to keep current" maxlength="4">
+      </div>
+    </div>
+    <div class="am-acts">
+      <button type="button" class="ambtn ambtn-abort" onclick="closeEditEmpModal()">Cancel</button>
+      <button type="button" class="ambtn ambtn-confirm" onclick="submitEditEmp()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD EMPLOYEE MODAL -->
+<div class="amodal-overlay" id="addEmpModal" role="dialog" aria-modal="true">
+  <div class="amodal-box">
+    <div class="am-tag">New Employee</div>
+    <div class="am-title">Register Badge</div>
+    <div class="am-err" id="addEmpErr"></div>
+    <div class="am-grid">
+      <div class="am-field">
+        <span class="am-label">Full Name *</span>
+        <input class="am-input" type="text" id="newFullName" placeholder="e.g. Dr. Sara Mahdavi">
+      </div>
+      <div class="am-field">
+        <span class="am-label">Role</span>
+        <input class="am-input" type="text" id="newRole" placeholder="e.g. Lab Technician">
+      </div>
+      <div class="am-field">
+        <span class="am-label">National ID *</span>
+        <input class="am-input" type="text" id="newNationalId" placeholder="10-digit ID" maxlength="10">
+      </div>
+      <div class="am-field">
+        <span class="am-label">Personnel Code</span>
+        <input class="am-input" type="text" id="newPersonnelCode" placeholder="e.g. 980201">
+      </div>
+      <div class="am-field">
+        <span class="am-label">Card UID *</span>
+        <input class="am-input" type="text" id="newCardUID" placeholder="Unique number">
+      </div>
+      <div class="am-field">
+        <span class="am-label">PIN Code *</span>
+        <input class="am-input" type="text" id="newPinCode" placeholder="4-digit PIN" maxlength="4">
+      </div>
+    </div>
+    <div class="am-acts">
+      <button type="button" class="ambtn ambtn-abort" onclick="closeAddEmpModal()">Cancel</button>
+      <button type="button" class="ambtn ambtn-confirm" onclick="submitAddEmp()">Register Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <span class="brand-pulse"></span>
+    <div>
+      <div class="brand-name">Biotech Lab</div>
+      <div class="brand-sub">Access Control System</div>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="live-badge"><span class="live-dot"></span>Live</div>
+    <div class="sync-el" id="syncEl">Sync —</div>
+    <div class="clock-el" id="clockEl">—</div>
+  </div>
+</div>
+
+<div class="workspace">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-sec-lbl">Navigation</div>
+    <div class="nav-item active" onclick="goTo('overview',this)"><span class="nav-dot"></span>Overview</div>
+    <div class="nav-item" onclick="goTo('logs',this)"><span class="nav-dot"></span>Access Logs</div>
+    <div class="nav-item" onclick="goTo('locked',this)"><span class="nav-dot"></span>Locked Badges</div>
+    <div class="nav-item" onclick="goTo('manage',this)"><span class="nav-dot"></span>Manage Employees</div>
+    <div class="sb-div"></div>
+    <div class="sb-sec-lbl">Events</div>
+    <div class="sb-total-val" id="sb-total">{{ total_count }}</div>
+    <div class="sb-total-lbl">Total Events</div>
+    <div class="sb-pair">
+      <div>
+        <div class="sb-col-v" style="color:var(--grn)" id="sb-allowed">{{ allowed_count }}</div>
+        <div class="sb-col-p" style="color:rgba(22,163,74,0.55)" id="sb-sr">{{ success_rate }}%</div>
+        <div class="sb-col-l">Granted</div>
+      </div>
+      <div>
+        <div class="sb-col-v" style="color:var(--red)" id="sb-denied">{{ denied_count }}</div>
+        <div class="sb-col-p" style="color:rgba(185,28,28,0.55)" id="sb-fr">{{ failure_rate }}%</div>
+        <div class="sb-col-l">Denied</div>
+      </div>
+    </div>
+    <div class="sb-div"></div>
+    <div class="sb-sec-lbl">Incidents</div>
+    <div class="sb-row">
+      <span class="sb-row-l">Peak Hour</span>
+      <span class="sb-row-v" style="color:var(--ind)" id="sb-peak">{{ peak_hour }}:00</span>
+    </div>
+    <div class="sb-row">
+      <span class="sb-row-l">Locked Badges</span>
+      <span class="sb-row-v" style="color:var(--ind-lt)" id="sb-locked">{{ blocked_employees|length }}</span>
+    </div>
+    <div class="sb-row">
+      <span class="sb-row-l">Unknown Cards</span>
+      <span class="sb-row-v" style="color:var(--ind-lt)" id="sb-unknown">—</span>
+    </div>
+    <div class="sb-spacer"></div>
+    <button class="sb-emrg" onclick="openModal()">Emergency Open</button>
+  </aside>
+
+  <!-- MOBILE STATS STRIP -->
+  <div class="mobile-stats" id="mobileStats">
+    <div class="ms-card">
+      <div class="ms-val" style="color:var(--ind)" id="msb-total">{{ total_count }}</div>
+      <div class="ms-lbl">Total</div>
+    </div>
+    <div class="ms-card">
+      <div class="ms-val" style="color:var(--grn)" id="msb-allowed">{{ allowed_count }}</div>
+      <div class="ms-lbl">Granted</div>
+    </div>
+    <div class="ms-card">
+      <div class="ms-val" style="color:var(--red)" id="msb-denied">{{ denied_count }}</div>
+      <div class="ms-lbl">Denied</div>
+    </div>
+    <div class="ms-card">
+      <div class="ms-val" style="color:var(--ind-lt)" id="msb-locked">{{ blocked_employees|length }}</div>
+      <div class="ms-lbl">Locked</div>
+    </div>
+  </div>
+
+  <main class="main">
+
+    <!-- OVERVIEW -->
+    <div id="sec-overview">
+      <div class="trange-row">
+        <span class="trange-lbl">Range</span>
+        <div class="trange-grp">
+          <button class="trbtn" onclick="setRange('24h',this)">24H</button>
+          <button class="trbtn on" onclick="setRange('7d',this)">7D</button>
+          <button class="trbtn" onclick="setRange('30d',this)">30D</button>
+          <button class="trbtn" onclick="setRange('90d',this)">90D</button>
+          <button class="trbtn" onclick="setRange('all',this)">All</button>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="panel">
+          <div class="ph" id="timelinePH">
+            Activity Timeline — 7 Days
+            <span class="ph-tag" style="background:var(--grn-bg);color:var(--grn);">Granted</span>
+            <span class="ph-tag" style="background:var(--red-bg);color:var(--red);">Denied</span>
+          </div>
+          <div class="ch-180"><canvas id="timelineChart"></canvas></div>
+        </div>
+
+        <div class="panel" style="animation-delay:0.08s;">
+          <div class="ph">7-Day Access Heatmap</div>
+          <div class="hm-grid" id="hmGrid" style="grid-template-columns:22px repeat(7,1fr);"></div>
+          <div class="hm-legend">
+            <span>Low</span>
+            <div class="hm-swatch">
+              <div class="hm-sw" style="background:rgba(79,70,229,0.07)"></div>
+              <div class="hm-sw" style="background:rgba(79,70,229,0.22)"></div>
+              <div class="hm-sw" style="background:rgba(79,70,229,0.44)"></div>
+              <div class="hm-sw" style="background:rgba(79,70,229,0.68)"></div>
+              <div class="hm-sw" style="background:rgba(79,70,229,0.9)"></div>
+            </div>
+            <span>High</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Intelligence -->
+      <div class="panel intel-panel" style="animation-delay:0.14s;">
+        <div class="ph">Security Intelligence</div>
+        <div class="intel-grid" id="intelGrid">
+          <div class="ic ic-r" onclick="toggleIC(this)">
+            <span class="ic-chev">&#9660;</span>
+            <div class="ic-tag" style="color:var(--red);">Threat</div>
+            <div class="ic-title">Suspicious Badge Activity</div>
+            <div class="ic-sub">Blocked card scan attempts</div>
+            <div class="ic-body" id="intel-blocked-text">
+              {% if blocked_analysis %}
+                کارت مسدود متعلق به <strong>{{ blocked_analysis[0] }}</strong> تاکنون <strong>{{ blocked_analysis[1] }} بار</strong> در گیت فشرده شده است.
+              {% else %}
+                هیچ لاگی مبنی بر استفاده از کارت‌های مسدود ثبت نشده است.
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="ic ic-a" onclick="toggleIC(this)">
+            <span class="ic-chev">&#9660;</span>
+            <div class="ic-tag" style="color:var(--amb);">Auth</div>
+            <div class="ic-title" id="intel-failure-title">PIN Failure Rate — {{ failure_rate }}%</div>
+            <div class="ic-sub">Authentication error analysis</div>
+            <div class="ic-body">
+              نرخ خطای رمز <strong>{{ failure_rate }} درصد</strong> از کل ورودی‌هاست. حمله brute-force شناسایی نشده، نظارت ادامه دارد.
+            </div>
+          </div>
+
+          <div class="ic ic-i" onclick="toggleIC(this)">
+            <span class="ic-chev">&#9660;</span>
+            <div class="ic-tag" style="color:var(--ind-lt);">Traffic</div>
+            <div class="ic-title" id="intel-peak-title">Traffic Peak — {{ peak_hour }}:00</div>
+            <div class="ic-sub">Temporal access pattern</div>
+            <div class="ic-body" id="intel-peak-text">
+              شلوغ‌ترین ساعت تردد <strong>{{ peak_hour }}</strong> ثبت شده است. نرخ موفقیت <strong>{{ success_rate }} درصد</strong> است.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCESS LOGS -->
+    <div id="sec-logs" style="display:none;">
+      <div class="table-wrap">
+        <div class="toolbar">
+          <div class="sw"><span class="si-ic">&#9906;</span><input class="si" id="searchBox" type="text" placeholder="Search name, card ID…" oninput="filterLogs()" autocomplete="off"></div>
+          <button class="flt on" onclick="setFlt('ALL',this)">All</button>
+          <button class="flt" onclick="setFlt('ALLOWED',this)">Granted</button>
+          <button class="flt" onclick="setFlt('DENIED_PIN',this)">Wrong PIN</button>
+          <button class="flt" onclick="setFlt('BLOCKED_CARD',this)">Blocked</button>
+          <button class="flt" onclick="setFlt('CARD_LOCKED',this)">Locked</button>
+          <button class="flt" onclick="setFlt('UNKNOWN_CARD',this)">Unknown</button>
+          <span class="rcount" id="rowCount">— rows</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table id="logTable">
+            <thead><tr><th>Timestamp</th><th>Name</th><th>Card ID</th><th>Role</th><th>Status</th></tr></thead>
+            <tbody id="logBody">
+              {# logs: id, card_uid, employee_name, timestamp, gate_name, status, role #}
+              {% for log in logs %}
+              <tr data-status="{{ log[5] }}" data-card="{{ log[1] }}" data-name="{{ log[2] or 'Unknown' }}"
+                  class="{% if log[5]=='ALLOWED' %}r-ok{% elif log[5] in ['BLOCKED_CARD','CARD_LOCKED'] %}r-err{% elif log[5]=='DENIED_PIN' %}r-wrn{% else %}r-unk{% endif %}">
+                <td class="td-ts">{{ log[3] }}</td>
+                <td class="td-n">{% if log[5]=='UNKNOWN_CARD' %}Unknown{% else %}{{ log[2] or 'Unknown' }}{% endif %}</td>
+                <td><span class="td-id">{{ log[1] }}</span></td>
+                <td>{% if log[5]=='UNKNOWN_CARD' %}No Profile{% else %}{{ log[6] or '—' }}{% endif %}</td>
+                <td>
+                  {% if log[5]=='ALLOWED' %}<span class="pill p-ok">Granted</span>
+                  {% elif log[5]=='DENIED_PIN' %}<span class="pill p-wrn">Wrong PIN</span>
+                  {% elif log[5]=='BLOCKED_CARD' %}<span class="pill p-err">Blocked</span>
+                  {% elif log[5]=='CARD_LOCKED' %}<span class="pill p-err">Locked — 3 fails</span>
+                  {% elif log[5]=='UNKNOWN_CARD' %}<span class="pill p-unk">Unknown Card</span>
+                  {% elif log[5]=='EMERGENCY_EXIT' %}<span class="pill p-inf">Emergency Bypass</span>
+                  {% else %}<span class="pill p-wrn">{{ log[5] }}</span>{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCKED BADGES -->
+    <div id="sec-locked" style="display:none;">
+      <div class="table-wrap">
+        <div class="toolbar">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--t5);letter-spacing:1px;text-transform:uppercase;">Locked Badges</span>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--red);margin-left:6px;">Admin action required</span>
+        </div>
+        <div class="locked-grid" id="lockedGrid">
+          {% if blocked_employees %}
+            {% for emp in blocked_employees %}
+            <div class="lcard" style="animation-delay:{{ loop.index0 * 0.06 }}s;">
+              <div class="lc-name">{{ emp[1] }}</div>
+              <div class="lc-role">{{ emp[2] }}</div>
+              <div class="lc-id">Card: {{ emp[0] }}</div>
+              <div style="margin-bottom:10px;">
+                <span class="pill p-err" style="display:block;text-align:center;">
+                  {% if emp[3]=='CARD_LOCKED' %}Locked — 3 consecutive wrong PINs
+                  {% elif emp[3]=='BLOCKED_CARD' %}Manually blocked by admin
+                  {% else %}Badge locked{% endif %}
+                </span>
+              </div>
+              <a href="#" class="btn-unblock" onclick="doUnblock(event,'{{ emp[0] }}','{{ emp[1] }}')">Unblock &amp; Reset</a>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div style="padding:32px;font-family:var(--mono);font-size:11px;color:var(--t5);text-align:center;">No locked badges at this time</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE EMPLOYEES -->
+    <div id="sec-manage" style="display:none;">
+      <div class="table-wrap">
+        <div class="toolbar">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--t5);letter-spacing:1px;text-transform:uppercase;">Employee Registry</span>
+          <button class="btn-add-emp" onclick="openAddEmpModal()">+ Register New Employee</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Name</th><th>Role</th><th>Card ID</th><th>National ID</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="manageBody">
+              {# all_employees: id, national_id, personnel_code, full_name, role, card_uid, pin_code, is_active #}
+              {% for emp in all_employees %}
+              <tr class="{% if emp[7]==1 %}r-ok{% else %}r-err{% endif %}">
+                <td class="td-n">{{ emp[3] }}</td>
+                <td>{{ emp[4] or '—' }}</td>
+                <td><span class="td-id">{{ emp[5] }}</span></td>
+                <td style="font-family:var(--mono);font-size:10px;color:var(--t5);">{{ emp[1] }}</td>
+                <td>{% if emp[7]==1 %}<span class="pill p-ok">Active</span>{% else %}<span class="pill p-err">Blocked</span>{% endif %}</td>
+                <td style="display:flex;gap:6px;align-items:center;">
+                  <button class="btn-edit-row" onclick="openEditEmpModal(this)"
+                    data-id="{{ emp[0] }}" data-name="{{ emp[3] }}" data-role="{{ emp[4] or '' }}"
+                    data-national="{{ emp[1] }}" data-personnel="{{ emp[2] or '' }}" data-card="{{ emp[5] }}">Edit</button>
+                  {% if emp[7]==1 %}
+                  <button class="btn-block-row" onclick="doBlock(event,'{{ emp[5] }}','{{ emp[3] }}')">Block</button>
+                  {% else %}
+                  <a href="#" class="btn-unblock" style="padding:4px 9px;font-size:9px;" onclick="doUnblock(event,'{{ emp[5] }}','{{ emp[3] }}')">Unblock</a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+function showToast(msg,dur){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},dur||2600);}
+
+/* clock */
+function tick(){document.getElementById('clockEl').textContent=new Date().toLocaleTimeString('en-GB');}
+tick();setInterval(tick,1000);
+
+/* nav */
+var SECS=['overview','logs','locked','manage'];
+function goTo(id,btn){
+  SECS.forEach(function(s){document.getElementById('sec-'+s).style.display=s===id?'':'none';});
+  document.querySelectorAll('.nav-item').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  if(id==='logs')updateRowCount();
+}
+
+/* Chart.js defaults */
+Chart.defaults.color='#94a3b8';
+Chart.defaults.borderColor='rgba(79,70,229,0.05)';
+Chart.defaults.font.family='JetBrains Mono';
+Chart.defaults.font.size=10;
+
+/* Timeline chart */
+window._timelineChart=new Chart(document.getElementById('timelineChart'),{
+  type:'line',
+  data:{
+    labels:[],
+    datasets:[
+      {label:'Granted',data:[],borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,0.06)',borderWidth:1.5,fill:true,tension:0.45,pointRadius:4,pointHoverRadius:6,pointBackgroundColor:'#22c55e'},
+      {label:'Denied',data:[],borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,0.05)',borderWidth:1.5,fill:true,tension:0.45,pointRadius:4,pointHoverRadius:6,pointBackgroundColor:'#ef4444'}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{mode:'index',intersect:false,backgroundColor:'rgba(30,27,75,0.92)',titleColor:'#a5b4fc',titleFont:{size:9,weight:'700'},bodyColor:'#e0e7ff',bodyFont:{size:10},padding:10,cornerRadius:8,
+        callbacks:{label:function(item){return(item.datasetIndex===0?'\u2713 ':'\u2715 ')+item.dataset.label+': '+item.raw;}}}
+    },
+    scales:{
+      x:{ticks:{color:'#94a3b8',font:{size:9}},grid:{color:'rgba(79,70,229,0.04)'}},
+      y:{ticks:{color:'#94a3b8',font:{size:9}},grid:{color:'rgba(79,70,229,0.04)'}}
     }
   }
-  return logs.sort((a,b)=>b.timestamp-a.timestamp);
-}
-const allLogs=genLogs();
-let lineC,donutC,range='7d';
+});
 
-function filterLogs(r){
-  const now=new Date();if(r==='all')return allLogs;
-  const c=new Date(now);
-  if(r==='24h')c.setHours(now.getHours()-24);
-  else if(r==='7d')c.setDate(now.getDate()-7);
-  else if(r==='30d')c.setDate(now.getDate()-30);
-  return allLogs.filter(l=>l.timestamp>=c);
-}
-function ini(n){return n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
-function fts(dt){return dt.toISOString().slice(0,16).replace('T',' ');}
-function bdg(s){
-  if(s==='ALLOWED')return`<span class="badge ba"><i class="ti ti-check" style="font-size:9px"></i>${s}</span>`;
-  if(s==='DENIED_PIN'||s==='CARD_LOCKED')return`<span class="badge bd"><i class="ti ti-x" style="font-size:9px"></i>${s}</span>`;
-  if(s==='BLOCKED_CARD')return`<span class="badge bb"><i class="ti ti-lock" style="font-size:9px"></i>BLOCKED</span>`;
-  return`<span class="badge bu">${s}</span>`;
-}
-
-function render(r){
-  const logs=filterLogs(r);
-  const total=logs.length||1;
-  const allowed=logs.filter(l=>l.status==='ALLOWED').length;
-  const denied=total-allowed;
-  document.getElementById('m-total').textContent=total.toLocaleString();
-  document.getElementById('m-allowed').textContent=allowed.toLocaleString();
-  document.getElementById('m-denied').textContent=denied.toLocaleString();
-  const blkCount=employees.filter(e=>e.is_active===0).length;
-  document.getElementById('m-blocked').textContent=blkCount;
-  document.getElementById('m-sr').textContent=Math.round((allowed/total)*100)+'% success rate';
-  document.getElementById('m-fr').textContent=Math.round((denied/total)*100)+'% failure rate';
-
-  const days7=[];
-  for(let i=6;i>=0;i--){
-    const d=new Date();d.setDate(d.getDate()-i);
-    const ds=d.toISOString().slice(0,10);
-    const a=allLogs.filter(l=>l.timestamp.toISOString().slice(0,10)===ds&&l.status==='ALLOWED').length;
-    const dn=allLogs.filter(l=>l.timestamp.toISOString().slice(0,10)===ds&&l.status!=='ALLOWED').length;
-    days7.push({label:ds.slice(5),a,dn});
-  }
-  if(lineC)lineC.destroy();
-  lineC=new Chart(document.getElementById('lineChart'),{
-    type:'line',
-    data:{labels:days7.map(d=>d.label),datasets:[
-      {label:'Allowed',data:days7.map(d=>d.a),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.06)',tension:0.4,pointRadius:3,pointBackgroundColor:'#10b981',fill:true,borderWidth:2},
-      {label:'Denied',data:days7.map(d=>d.dn),borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,0.04)',tension:0.4,pointRadius:3,pointBackgroundColor:'#ef4444',borderDash:[5,3],fill:true,borderWidth:2}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-    scales:{y:{beginAtZero:true,grid:{color:'rgba(30,45,74,0.8)'},ticks:{color:'#4b5a7a',font:{size:10}}},x:{grid:{display:false},ticks:{color:'#4b5a7a',font:{size:10}}}}}
+/* Heatmap grid */
+(function(){
+  var wrap=document.getElementById('hmGrid');if(!wrap)return;
+  var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var hours=['00','02','04','06','08','10','12','14','16','18','20','22'];
+  var corner=document.createElement('div');wrap.appendChild(corner);
+  days.forEach(function(d){var el=document.createElement('div');el.className='hm-head';el.textContent=d;wrap.appendChild(el);});
+  hours.forEach(function(h){
+    var lbl=document.createElement('div');lbl.className='hm-lbl';lbl.textContent=h;wrap.appendChild(lbl);
+    days.forEach(function(day,idx){
+      var el=document.createElement('div');el.className='hm-cell';
+      el.setAttribute('data-day',idx);el.setAttribute('data-hour',h);
+      el.style.background='#f0f2ff';wrap.appendChild(el);
+    });
   });
+})();
 
-  if(donutC)donutC.destroy();
-  const st={};logs.forEach(l=>{st[l.status]=(st[l.status]||0)+1;});
-  const lbls=Object.keys(st);const vals=Object.values(st);
-  const cols={'ALLOWED':'#10b981','DENIED_PIN':'#ef4444','UNKNOWN_CARD':'#334155','BLOCKED_CARD':'#f59e0b','CARD_LOCKED':'#ef4444'};
-  donutC=new Chart(document.getElementById('donutChart'),{
-    type:'doughnut',
-    data:{labels:lbls,datasets:[{data:vals,backgroundColor:lbls.map(l=>cols[l]||'#1e2d4a'),borderWidth:2,borderColor:'#0f1a2e'}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'right',labels:{color:'#64748b',font:{size:10},boxWidth:9,padding:8}}}}
+function paintHeatmap(hmArray){
+  var max=0;
+  (hmArray||[]).forEach(function(item){if(item.count>max)max=item.count;});
+  document.querySelectorAll('.hm-cell').forEach(function(cell){
+    var day=cell.getAttribute('data-day');
+    var hour=cell.getAttribute('data-hour');
+    var match=(hmArray||[]).find(function(item){
+      return String(item.day)===String(day)&&String(item.hour)===String(hour);
+    });
+    if(match&&match.count>0&&max>0){
+      var opacity=0.12+Math.sqrt(match.count/max)*0.78;
+      cell.style.background='rgba(79,70,229,'+opacity.toFixed(2)+')';
+      cell.setAttribute('data-count',match.count);
+    } else {
+      cell.style.background='#f0f2ff';cell.removeAttribute('data-count');
+    }
   });
-
-  const bl=document.getElementById('blocked-list');
-  const blk=employees.filter(e=>e.is_active===0);
-  document.getElementById('blk-count').textContent=blk.length?blk.length+' locked':'';
-  bl.innerHTML=blk.length===0
-    ?'<div style="font-size:12px;color:#4b5a7a;padding:4px 0;display:flex;align-items:center;gap:6px"><i class="ti ti-circle-check" style="color:#10b981"></i>All badges active</div>'
-    :blk.map(e=>`
-      <div class="blk-row">
-        <div class="av av-red">${ini(e.full_name)}</div>
-        <div>
-          <div class="bname">${e.full_name}</div>
-          <div class="brole">${e.role} &nbsp;·&nbsp; <span style="font-family:monospace">${e.card_uid}</span></div>
-        </div>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
-          <span style="font-size:10px;color:#ef4444"><i class="ti ti-alert-triangle" style="font-size:11px"></i> 3 wrong PIN</span>
-          <button class="ubtn" onclick="unblock('${e.card_uid}')"><i class="ti ti-lock-open" style="font-size:11px"></i> Unblock</button>
-        </div>
-      </div>`).join('');
-
-  const recent=logs.slice(0,50);
-  const tbody=document.getElementById('logs-body');
-  tbody.innerHTML=recent.length===0
-    ?'<tr><td colspan="6" style="text-align:center;color:#4b5a7a;padding:20px">No records in this period</td></tr>'
-    :recent.map((l,i)=>`<tr>
-      <td style="color:#2a3f6e;font-size:11px">${i+1}</td>
-      <td style="font-family:monospace;font-size:11px;color:#4b5a7a">${fts(l.timestamp)}</td>
-      <td style="font-family:monospace;font-size:11px;color:#4d8af0">${l.card_uid}</td>
-      <td style="color:#cbd5e1;font-size:12px">${l.employee_name}</td>
-      <td style="font-size:11px;color:#4b5a7a">${l.gate_name}</td>
-      <td>${bdg(l.status)}</td>
-    </tr>`).join('');
 }
 
-function setRange(r){
-  range=r;
-  ['24h','7d','30d','all'].forEach(x=>document.getElementById('btn-'+x).classList.remove('active'));
-  document.getElementById('btn-'+r).classList.add('active');
-  render(r);
+/* Heatmap tooltip */
+var _hmTip=document.getElementById('hmTooltip');
+var DAYNAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+document.getElementById('hmGrid').addEventListener('mousemove',function(e){
+  var cell=e.target.closest('.hm-cell');if(!cell){_hmTip.classList.remove('show');return;}
+  var count=cell.getAttribute('data-count');
+  var day=cell.getAttribute('data-day');
+  var hour=cell.getAttribute('data-hour');
+  var nextHour=String(parseInt(hour)+2).padStart(2,'0');
+  document.getElementById('hmTipDay').textContent=(DAYNAMES[day]||'')+' \u00b7 '+hour+':00\u2013'+nextHour+':00';
+  document.getElementById('hmTipCnt').innerHTML=(count||'0')+'<span>accesses</span>';
+  _hmTip.classList.add('show');
+  var x=e.clientX+14,y=e.clientY-54,tw=_hmTip.offsetWidth||120;
+  if(x+tw>window.innerWidth-8)x=e.clientX-tw-10;
+  _hmTip.style.left=x+'px';_hmTip.style.top=y+'px';
+});
+document.getElementById('hmGrid').addEventListener('mouseleave',function(){_hmTip.classList.remove('show');});
+
+/* Time range */
+var currentRange='7d';
+function setRange(r,btn){
+  currentRange=r;
+  document.querySelectorAll('.trbtn').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  refreshFromAPI();
 }
-function unblock(uid){
-  const emp=employees.find(e=>e.card_uid===uid);
-  if(emp){emp.is_active=1;emp.failed_attempts=0;}
-  render(range);
+
+/* Intelligence cards */
+function toggleIC(card){
+  var body=card.querySelector('.ic-body');
+  var chev=card.querySelector('.ic-chev');
+  var isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  chev.classList.toggle('open',!isOpen);
+  card.classList.toggle('is-open',!isOpen);
 }
-render('7d');
+
+/* Emergency */
+function openModal(){document.getElementById('emergencyModal').classList.add('show');}
+function closeModal(){document.getElementById('emergencyModal').classList.remove('show');}
+function doEmergency(){
+  closeModal();showToast('Emergency override triggered — event logged',1800);
+  fetch('/emergency_open',{method:'POST'}).catch(function(){});
+}
+document.getElementById('emergencyModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeUnblockModal();closeBlockModal();closeAddEmpModal();closeEditEmpModal();}});
+
+/* Unblock */
+var _unblockId='';
+function doUnblock(e,id,name){
+  e.preventDefault();_unblockId=id;
+  document.getElementById('unblockName').textContent=name;
+  document.getElementById('unblockConfirmBtn').onclick=function(){
+    closeUnblockModal();showToast('Unblocking badge for '+name+'…');
+    fetch('/unblock/'+encodeURIComponent(_unblockId),{method:'POST'})
+      .then(function(r){return r.json();})
+      .then(function(d){if(d.success){showToast('Badge unblocked',1800);refreshFromAPI();}else showToast('Error: '+(d.error||'unknown'),2600);})
+      .catch(function(){showToast('Network error',2600);});
+  };
+  document.getElementById('unblockModal').classList.add('show');
+}
+function closeUnblockModal(){document.getElementById('unblockModal').classList.remove('show');}
+document.getElementById('unblockModal').addEventListener('click',function(e){if(e.target===this)closeUnblockModal();});
+
+/* Block */
+var _blockId='';
+function doBlock(e,id,name){
+  e.preventDefault();_blockId=id;
+  document.getElementById('blockName').textContent=name;
+  document.getElementById('blockConfirmBtn').onclick=function(){
+    closeBlockModal();showToast('Blocking badge for '+name+'…');
+    fetch('/block/'+encodeURIComponent(_blockId),{method:'POST'})
+      .then(function(r){return r.json();})
+      .then(function(d){if(d.success){showToast('Badge blocked',1800);refreshFromAPI();}else showToast('Error: '+(d.error||'unknown'),2600);})
+      .catch(function(){showToast('Network error',2600);});
+  };
+  document.getElementById('blockModal').classList.add('show');
+}
+function closeBlockModal(){document.getElementById('blockModal').classList.remove('show');}
+document.getElementById('blockModal').addEventListener('click',function(e){if(e.target===this)closeBlockModal();});
+
+/* Add Employee */
+function openAddEmpModal(){
+  document.getElementById('addEmpErr').classList.remove('show');
+  ['newFullName','newRole','newNationalId','newPersonnelCode','newCardUID','newPinCode'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('addEmpModal').classList.add('show');
+}
+function closeAddEmpModal(){document.getElementById('addEmpModal').classList.remove('show');}
+document.getElementById('addEmpModal').addEventListener('click',function(e){if(e.target===this)closeAddEmpModal();});
+function submitAddEmp(){
+  var errEl=document.getElementById('addEmpErr');errEl.classList.remove('show');
+  var fullName=document.getElementById('newFullName').value.trim();
+  var nationalId=document.getElementById('newNationalId').value.trim();
+  var cardUID=document.getElementById('newCardUID').value.trim();
+  var pinCode=document.getElementById('newPinCode').value.trim();
+  if(!fullName||!nationalId||!cardUID||!pinCode){errEl.textContent='Please fill all required fields.';errEl.classList.add('show');return;}
+  if(!/^\d{10}$/.test(nationalId)){errEl.textContent='National ID must be exactly 10 digits.';errEl.classList.add('show');return;}
+  if(!/^\d{4}$/.test(pinCode)){errEl.textContent='PIN must be exactly 4 digits.';errEl.classList.add('show');return;}
+  var fd=new FormData();
+  fd.append('full_name',fullName);
+  fd.append('role',document.getElementById('newRole').value.trim());
+  fd.append('national_id',nationalId);
+  fd.append('personnel_code',document.getElementById('newPersonnelCode').value.trim());
+  fd.append('card_uid',cardUID);
+  fd.append('pin_code',pinCode);
+  fetch('/add_employee',{method:'POST',body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){if(d.success){closeAddEmpModal();showToast('Employee registered',2000);refreshFromAPI();}else{errEl.textContent=d.error||'Registration failed.';errEl.classList.add('show');}})
+    .catch(function(){errEl.textContent='Network error.';errEl.classList.add('show');});
+}
+
+/* Edit Employee */
+function openEditEmpModal(btn){
+  var errEl=document.getElementById('editEmpErr');errEl.classList.remove('show');
+  document.getElementById('editEmpId').value=btn.getAttribute('data-id');
+  document.getElementById('editFullName').value=btn.getAttribute('data-name')||'';
+  document.getElementById('editRole').value=btn.getAttribute('data-role')||'';
+  document.getElementById('editNationalId').value=btn.getAttribute('data-national')||'';
+  document.getElementById('editPersonnelCode').value=btn.getAttribute('data-personnel')||'';
+  document.getElementById('editCardUID').value=btn.getAttribute('data-card')||'';
+  document.getElementById('editPinCode').value='';
+  document.getElementById('editEmpModal').classList.add('show');
+}
+function closeEditEmpModal(){document.getElementById('editEmpModal').classList.remove('show');}
+document.getElementById('editEmpModal').addEventListener('click',function(e){if(e.target===this)closeEditEmpModal();});
+function submitEditEmp(){
+  var errEl=document.getElementById('editEmpErr');errEl.classList.remove('show');
+  var id=document.getElementById('editEmpId').value;
+  var fullName=document.getElementById('editFullName').value.trim();
+  var nationalId=document.getElementById('editNationalId').value.trim();
+  var cardUID=document.getElementById('editCardUID').value.trim();
+  var pinCode=document.getElementById('editPinCode').value.trim();
+  if(!fullName||!nationalId||!cardUID){errEl.textContent='Name, National ID, and Card UID are required.';errEl.classList.add('show');return;}
+  if(!/^\d{10}$/.test(nationalId)){errEl.textContent='National ID must be exactly 10 digits.';errEl.classList.add('show');return;}
+  if(pinCode&&!/^\d{4}$/.test(pinCode)){errEl.textContent='PIN must be 4 digits or leave blank.';errEl.classList.add('show');return;}
+  var fd=new FormData();
+  fd.append('full_name',fullName);fd.append('role',document.getElementById('editRole').value.trim());
+  fd.append('national_id',nationalId);fd.append('personnel_code',document.getElementById('editPersonnelCode').value.trim());
+  fd.append('card_uid',cardUID);if(pinCode)fd.append('pin_code',pinCode);
+  fetch('/edit_employee/'+id,{method:'POST',body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){if(d.success){closeEditEmpModal();showToast('Employee updated',2000);refreshFromAPI();}else{errEl.textContent=d.error||'Update failed.';errEl.classList.add('show');}})
+    .catch(function(){errEl.textContent='Network error.';errEl.classList.add('show');});
+}
+
+/* Manage table live render */
+function renderManageTable(employees){
+  var tbody=document.getElementById('manageBody');if(!tbody)return;
+  var html='';
+  employees.forEach(function(emp){
+    var active=emp.is_active===1;
+    var rowCls=active?'r-ok':'r-err';
+    var statusPill=active?'<span class="pill p-ok">Active</span>':'<span class="pill p-err">Blocked</span>';
+    var actionBtn=active
+      ?('<button class="btn-block-row" onclick="doBlock(event,\''+esc(emp.card_uid)+'\',\''+esc(emp.full_name)+'\')">Block</button>')
+      :('<a href="#" class="btn-unblock" style="padding:4px 9px;font-size:9px;" onclick="doUnblock(event,\''+esc(emp.card_uid)+'\',\''+esc(emp.full_name)+'\')">Unblock</a>');
+    html+='<tr class="'+rowCls+'">'
+      +'<td class="td-n">'+esc(emp.full_name)+'</td>'
+      +'<td>'+esc(emp.role||'—')+'</td>'
+      +'<td><span class="td-id">'+esc(emp.card_uid)+'</span></td>'
+      +'<td style="font-family:var(--mono);font-size:10px;color:var(--t5);">'+esc(emp.national_id)+'</td>'
+      +'<td>'+statusPill+'</td>'
+      +'<td style="display:flex;gap:6px;align-items:center;">'
+        +'<button class="btn-edit-row" onclick="openEditEmpModal(this)"'
+        +' data-id="'+emp.id+'" data-name="'+esc(emp.full_name)+'" data-role="'+esc(emp.role||'')+'"'
+        +' data-national="'+esc(emp.national_id)+'" data-personnel="'+esc(emp.personnel_code||'')+'" data-card="'+esc(emp.card_uid)+'">Edit</button>'
+        +actionBtn+'</td></tr>';
+  });
+  tbody.innerHTML=html;
+}
+
+/* Locked section refresh */
+function refreshLockedSection(employees){
+  var grid=document.getElementById('lockedGrid');if(!grid)return;
+  if(employees.length===0){grid.innerHTML='<div style="padding:32px;font-family:var(--mono);font-size:11px;color:var(--t5);text-align:center;">No locked badges at this time</div>';return;}
+  var html='';
+  employees.forEach(function(emp){
+    var reasonText=emp.reason==='CARD_LOCKED'?'Locked — 3 consecutive wrong PINs':emp.reason==='BLOCKED_CARD'?'Manually blocked by admin':'Badge locked';
+    html+='<div class="lcard"><div class="lc-name">'+esc(emp.name)+'</div><div class="lc-role">'+esc(emp.role||'')+'</div>'
+      +'<div class="lc-id">Card: '+esc(emp.card_uid)+'</div>'
+      +'<div style="margin-bottom:10px;"><span class="pill p-err" style="display:block;text-align:center;">'+reasonText+'</span></div>'
+      +'<a href="#" class="btn-unblock" onclick="doUnblock(event,\''+esc(emp.card_uid)+'\',\''+esc(emp.name)+'\')">Unblock &amp; Reset</a></div>';
+  });
+  grid.innerHTML=html;
+}
+
+/* Main API refresh */
+function refreshFromAPI(){
+  fetch('/api/stats?range='+currentRange)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      set('sb-total',data.total);set('sb-allowed',data.allowed);set('sb-denied',data.denied);
+      set('msb-total',data.total);set('msb-allowed',data.allowed);set('msb-denied',data.denied);
+      set('msb-locked',(data.blocked_employees||[]).length);
+      set('sb-sr',data.success_rate+'%');set('sb-fr',data.failure_rate+'%');
+      set('sb-locked',(data.blocked_employees||[]).length);
+      set('sb-unknown',data.unknown_count||0);
+      set('sb-peak',data.peak_hour+':00');
+
+      /* intelligence cards */
+      if(data.blocked_analysis){
+        var el=document.getElementById('intel-blocked-text');
+        if(el)el.innerHTML='کارت مسدود متعلق به <strong>'+esc(data.blocked_analysis.name)+'</strong> تاکنون <strong>'+data.blocked_analysis.count+' بار</strong> در گیت فشرده شده است.';
+      }
+      var fpEl=document.getElementById('intel-failure-title');if(fpEl)fpEl.textContent='PIN Failure Rate — '+data.failure_rate+'%';
+      var pkEl=document.getElementById('intel-peak-title');if(pkEl)pkEl.textContent='Traffic Peak — '+data.peak_hour+':00';
+      var pkBody=document.getElementById('intel-peak-text');
+      if(pkBody)pkBody.innerHTML='شلوغ‌ترین ساعت تردد <strong>'+data.peak_hour+'</strong> ثبت شده است. نرخ موفقیت <strong>'+data.success_rate+' درصد</strong> است.';
+
+      /* timeline */
+      var rangeLabels={'24h':'24H','7d':'7 Days','30d':'30 Days','90d':'90 Days','all':'All Time'};
+      var ph=document.getElementById('timelinePH');
+      if(ph)ph.innerHTML='Activity Timeline — '+(rangeLabels[currentRange]||currentRange)
+        +' <span class="ph-tag" style="background:var(--grn-bg);color:var(--grn);">Granted</span>'
+        +' <span class="ph-tag" style="background:var(--red-bg);color:var(--red);">Denied</span>';
+      if(data.line&&data.line.length>0&&window._timelineChart){
+        window._timelineChart.data.labels=data.line.map(function(r){return r.label;});
+        window._timelineChart.data.datasets[0].data=data.line.map(function(r){return r.granted;});
+        window._timelineChart.data.datasets[1].data=data.line.map(function(r){return r.denied;});
+        window._timelineChart.update('none');
+      }
+
+      /* heatmap */
+      paintHeatmap(data.heatmap);
+
+      /* locked & manage */
+      refreshLockedSection(data.blocked_employees||[]);
+      if(data.employees)renderManageTable(data.employees);
+
+      set('syncEl','Sync '+new Date().toLocaleTimeString('en-GB'));
+    }).catch(function(){});
+}
+
+/* Logs filter */
+var activeFlt='ALL';
+function setFlt(s,btn){activeFlt=s;document.querySelectorAll('.flt').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');filterLogs();}
+function filterLogs(){
+  var q=(document.getElementById('searchBox')||{value:''}).value.toLowerCase();
+  var rows=document.querySelectorAll('#logBody tr'),vis=0;
+  rows.forEach(function(r){
+    var ok=(activeFlt==='ALL'||r.getAttribute('data-status')===activeFlt)&&(!q||r.textContent.toLowerCase().includes(q));
+    r.style.display=ok?'':'none';if(ok)vis++;
+  });
+  updateRowCount(vis);
+}
+function updateRowCount(n){
+  var el=document.getElementById('rowCount');if(!el)return;
+  var tot=document.querySelectorAll('#logBody tr').length;
+  el.textContent=(n!==undefined?n:tot)+' / '+tot+' rows';
+}
+
+/* Logs live refresh */
+function refreshLogs(){
+  fetch(window.location.href)
+    .then(function(r){return r.text();})
+    .then(function(html){
+      var doc=new DOMParser().parseFromString(html,'text/html');
+      var newBody=doc.getElementById('logBody');
+      var curBody=document.getElementById('logBody');
+      if(newBody&&curBody&&newBody.innerHTML!==curBody.innerHTML){curBody.innerHTML=newBody.innerHTML;filterLogs();}
+    }).catch(function(){});
+}
+
+
+function bnActive(btn){
+  document.querySelectorAll('.bn-item').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+}
+
+
+/* init */
+updateRowCount();
+refreshFromAPI();
+setInterval(function(){refreshFromAPI();refreshLogs();},8000);
 </script>
+
+<!-- BOTTOM NAV (mobile only) -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bn-item active" onclick="goTo('overview',this);bnActive(this)" id="bn-overview">
+    <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Overview</span>
+  </button>
+  <button class="bn-item" onclick="goTo('logs',this);bnActive(this)" id="bn-logs">
+    <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 8h6M9 16h4M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
+    <span>Logs</span>
+  </button>
+  <button class="bn-item" onclick="goTo('locked',this);bnActive(this)" id="bn-locked">
+    <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 118 0v4"/></svg>
+    <span>Locked</span>
+  </button>
+  <button class="bn-item" onclick="goTo('manage',this);bnActive(this)" id="bn-manage">
+    <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="18" cy="8" r="2.5"/><path d="M15.5 20c0-2.5 1.1-4.5 3-5.5"/></svg>
+    <span>Manage</span>
+  </button>
+  <button class="bn-emrg" onclick="openModal()">
+    <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>Emergency</span>
+  </button>
+</nav>
 </body>
 </html>
